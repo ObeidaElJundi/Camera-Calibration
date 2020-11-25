@@ -6,6 +6,12 @@ from PyQt5.QtWidgets import QDialog, QApplication, QMainWindow, QLabel, QPushBut
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QPainter, QPen
+import os
+
+#Config Variables - Enter their values according to your Checkerboard
+no_of_columns = 9   #number of columns of your Checkerboard
+no_of_rows = 7  #number of rows of your Checkerboard
+square_size = 20.0 # size of square on the Checkerboard in mm
 
 class MyGUI(QMainWindow):
 	def __init__(self):
@@ -26,8 +32,8 @@ class MyGUI(QMainWindow):
 		self.objectPoints = {} # dictionary of 3D points on chessboard
 		self.A = None #intrinsic
 		self.Rts = [] #extrinsic
-		self.points_in_row, self.points_in_column = 8, 6
-		x, y = 30.0, 30.0
+		self.points_in_row, self.points_in_column = no_of_rows, no_of_columns    #number of rows and columns of your Checkerboard
+        	x, y = square_size, square_size   #size of square on the Checkerboard in mm
 		# points in 3D
 		self.capturedObjectPointsLR = [[i*x, j*y, 0] for i in range(self.points_in_row,0,-1) for j in range(self.points_in_column,0,-1)]
 		self.capturedObjectPointsRL = list(reversed(self.capturedObjectPointsLR))
@@ -193,10 +199,10 @@ class MyGUI(QMainWindow):
 	def detectCorners(self, image):
 		criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 		gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-		ret, corners = cv2.findChessboardCorners(gray, (6,8), cv2.CALIB_CB_FAST_CHECK)
+		ret, corners = cv2.findChessboardCorners(gray, (no_of_columns,no_of_rows), cv2.CALIB_CB_FAST_CHECK)
 		if ret:
 			cv2.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
-			cv2.drawChessboardCorners(image, (6,8), corners, ret)
+			cv2.drawChessboardCorners(image, (no_of_columns,no_of_rows), corners, ret)
 		return ret, corners, image
 
 	def imageToPixmap(self, image):
@@ -262,7 +268,9 @@ class MyGUI(QMainWindow):
 		u0 = (gamma*v0/betta) - (B13*alpha**2/lamda)
 		A = np.array([[alpha,gamma,u0], [0, betta, v0], [0,0,1]])
 		#write intrinsic parameters to file
-		with open('intrinsic.txt', 'w+') as f:
+		if not os.path.exists('./output'):
+            		os.mkdir('./output')    #make output folder if not exists
+		with open('./output/intrinsic.txt', 'w+') as f:
 			f.write('A=\n{}'.format(A))
 		return v0, lamda, alpha, betta, gamma, u0, A
 
@@ -279,7 +287,9 @@ class MyGUI(QMainWindow):
 		t = lamda * np.dot(A_inv, h3) # translation vector
 		Rt = np.array([r1.T, r2.T, r3.T, t.T]).T
 		#write extrinsic parameters to file
-		with open('extrinsic.txt', 'w+') as f:
+		if not os.path.exists('./output'):
+            		os.mkdir('./output')    #make output folder if not exists
+		with open('./output/extrinsic.txt', 'w+') as f:
 			f.write('[R|t]=\n{}'.format(Rt))
 		return Rt
 
@@ -312,7 +322,9 @@ class MyGUI(QMainWindow):
 		imgpoints = np.array([np.squeeze(p) for p in self.capturedImagePoints[1]])
 		imgpoints = np.append(imgpoints, np.ones((imgpoints.shape[0],1)), axis=1) # append 1 to each 2D point
 		pred = []
-		f = open('predicted VS actual.txt', 'w+')
+		if not os.path.exists('./output'):
+            		os.mkdir('./output')    #make output folder if not exists
+		f = open('./output/predicted VS actual.txt', 'w+')
 		f.write('predicted >> actual')
 		for p3d, p2d in zip(points3D, imgpoints):
 			p3d = np.array(p3d)
