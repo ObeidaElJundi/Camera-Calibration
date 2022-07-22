@@ -33,7 +33,7 @@ class MyGUI(QMainWindow):
 		self.A = None #intrinsic
 		self.Rts = [] #extrinsic
 		self.points_in_row, self.points_in_column = no_of_rows, no_of_columns    #number of rows and columns of your Checkerboard
-        	x, y = square_size, square_size   #size of square on the Checkerboard in mm
+		x, y = square_size, square_size   #size of square on the Checkerboard in mm
 		# points in 3D
 		self.capturedObjectPointsLR = [[i*x, j*y, 0] for i in range(self.points_in_row,0,-1) for j in range(self.points_in_column,0,-1)]
 		self.capturedObjectPointsRL = list(reversed(self.capturedObjectPointsLR))
@@ -269,7 +269,7 @@ class MyGUI(QMainWindow):
 		A = np.array([[alpha,gamma,u0], [0, betta, v0], [0,0,1]])
 		#write intrinsic parameters to file
 		if not os.path.exists('./output'):
-            		os.mkdir('./output')    #make output folder if not exists
+				os.mkdir('./output')    #make output folder if not exists
 		with open('./output/intrinsic.txt', 'w+') as f:
 			f.write('A=\n{}'.format(A))
 		return v0, lamda, alpha, betta, gamma, u0, A
@@ -288,7 +288,7 @@ class MyGUI(QMainWindow):
 		Rt = np.array([r1.T, r2.T, r3.T, t.T]).T
 		#write extrinsic parameters to file
 		if not os.path.exists('./output'):
-            		os.mkdir('./output')    #make output folder if not exists
+				os.mkdir('./output')    #make output folder if not exists
 		with open('./output/extrinsic.txt', 'w+') as f:
 			f.write('[R|t]=\n{}'.format(Rt))
 		return Rt
@@ -323,7 +323,7 @@ class MyGUI(QMainWindow):
 		imgpoints = np.append(imgpoints, np.ones((imgpoints.shape[0],1)), axis=1) # append 1 to each 2D point
 		pred = []
 		if not os.path.exists('./output'):
-            		os.mkdir('./output')    #make output folder if not exists
+				os.mkdir('./output')    #make output folder if not exists
 		f = open('./output/predicted VS actual.txt', 'w+')
 		f.write('predicted >> actual')
 		for p3d, p2d in zip(points3D, imgpoints):
